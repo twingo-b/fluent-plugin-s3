@@ -39,7 +39,12 @@ class S3Output < Fluent::TimeSlicedOutput
 
   def format(tag, time, record)
     time_str = @timef.format(time)
-    "#{time_str}\t#{tag}\t#{record.to_json}\n"
+
+    rec_utf8 = Hash.new
+    record.each { |key, value|
+      rec_utf8.store(key, value.force_encoding("UTF-8"))
+    }
+    "#{time_str}\t#{tag}\t#{rec_utf8.to_json}\n"
   end
 
   def write(chunk)
